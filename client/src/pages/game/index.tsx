@@ -1,30 +1,44 @@
-import Card from "./webSocketTest/Card";
-import WebSocketTest from "./webSocketTest/WebSocketTest";
+
+import { useState } from "react";
+import GameLogin from "./webSocketTest/GameLogin";
+import GameScreen from "./webSocketTest/GameScreen";
+import GameInviteOrParticipation from "./webSocketTest/GameInviteOrParticipation";
 
 const GamePage = () => {
+  const [isLogin, setIsLogin] = useState(false); // 로그인 여부
+  const [isGameStart, setIsGameStart] = useState(false); // 게임 시작
+  const [member,setMember] = useState({
+    id:"",
+    name:"",
+    email:""
+  });
+  
+  
   return <>
-  <div className="flex justify-center bg-[#EDF0FF] w-[100vw] h-[100vh] gap-10 p-5">
-    {/* 좌측 보라색 박스 */}
-    <div className="bg-[#A1A7FF] w-[60%] rounded-xl grid grid-cols-3 gap-2 p-2">
-      <Card 
-        id="1" 
-        type="answer" 
-        content="스레드야스레드" />
-     
-    </div>
-    
-    {/* 우측 흰색 박스의 컨테이너 */}
-    <div className="flex flex-col w-[40%] h-[100%] gap-5">
-      {/* 우측 흰색 박스 1 */}
-    <div className="bg-white w-full h-full p-5 rounded-xl">
-      <span className="text-2xl font-bold">2P</span>
-    </div>
-    {/* 우측 흰색 박스 2 */}
-    <div className="bg-white w-full h-full p-5 rounded-xl">
-    <span className="text-2xl font-bold">1P</span>
-    </div>
-    </div>
-  </div>
+  
+  {
+  // 1. 로그인이 되지 않았다면 로그인 화면 출력.
+  !isLogin ?   
+  <GameLogin 
+  isLogin = {isLogin}
+  setIsLogin = {setIsLogin}
+  setMember={setMember}
+  />
+  
+  
+  // 2. 로그인을 했고, 게임 시작을 진행하지 않았다면 게임초대혹은입장장 화면 출력.
+  : !isGameStart ? 
+  <GameInviteOrParticipation 
+  isGameStart = {isGameStart}
+  setIsGameStart = {setIsGameStart}
+  member = {member}
+  
+  />
+
+  // 3. 게임 시작이 되면 게임 화면 출력.
+  : <GameScreen />}
+  
+  
   </>;
 };
 
