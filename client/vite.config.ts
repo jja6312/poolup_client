@@ -41,4 +41,8 @@ export default defineConfig({
       '@': '/src',
     },
   },
+
+  define: {
+    global: {}, // 웹소켓때문에 추가됨: 정지안
+  },
 });

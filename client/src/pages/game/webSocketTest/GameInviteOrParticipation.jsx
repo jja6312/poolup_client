@@ -1,21 +1,58 @@
 import React, { useState } from 'react';
 import { createRoom } from './api/createRoom';
+import useWebSocket from './webSocket/useWebSocket';
 
 const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoomStatus, setPlayers }) => {
   const [roomId, setRoomId] = useState('');
   const [inviteCodeForParticipation, setInviteCodeForParticipation] = useState('');
 
+  const { sendMessage } = useWebSocket();
+
   const handleCreateRoom = async () => {
     try {
       const response = await createRoom(member.id);
-      setRoomId(response.roomId); // 방번호(==초대코드) 할당
-      setRoomStatus(response.roomStatus);
+      setRoomId(response.roomId);
+      setRoomStatus(response.roomStatus); // READY 상태로 설정
       setIsGameStart(true);
       setPlayers((prevPlayer) => ({ ...prevPlayer, player1P: response.player1P }));
-    } catch (e) {
-      alert('초대코드 생성 실패했음. 콘솔봐야댐');
-      console.log(e);
+
+      if (!sendMessage) {
+        alert('WebSocket 연결되지 않음');
+        return;
+      }
+      console.log('방생성시 웹소켓에 전달되는 정보', response.roomId);
+      console.log('방생성시 웹소켓에 전달되는 정보', member.id);
+      console.log('방생성시 웹소켓에 전달되는 정보', member.name);
+
+      // WebSocket 메시지 전송
+      sendMessage('ws://localhost:8080/app/room/create', {
+        roomId: response.roomId,
+        playerId: member.id,
+        playerName: member.name,
+      });
+    } catch (error) {
+      alert('초대코드 생성 실패');
+      console.error(error);
     }
+  };
+
+  const handleJoinRoom = () => {
+    sendMessage('/app/room/join', {
+      roomId: inviteCodeForParticipation,
+      playerId: member.id,
+      playerName: member.name,
+    });
+
+    // 상태 업데이트
+    setRoomStatus('START');
+    setIsGameStart(true);
+    setPlayers((prevPlayer) => ({
+      ...prevPlayer,
+      player2P: {
+        memberId: member.id,
+        name: member.name,
+      },
+    }));
   };
 
   // 초대코드 인풋값 변경감지지
@@ -50,6 +87,7 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
           className="bg-purple-200 w-20 h-16
             transition-all duration-200 hover:opacity-70
             "
+          onClick={handleJoinRoom}
         >
           입장
         </button>

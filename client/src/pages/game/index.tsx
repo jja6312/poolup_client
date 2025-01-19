@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GameLogin from './webSocketTest/GameLogin';
 import GameScreen from './webSocketTest/GameScreen';
 import GameInviteOrParticipation from './webSocketTest/GameInviteOrParticipation';
+import useWebSocket from './webSocketTest/webSocket/useWebSocket';
 
 const GamePage = () => {
   const [isLogin, setIsLogin] = useState(false); // 로그인 여부
@@ -20,6 +21,31 @@ const GamePage = () => {
     player1P: { memberId: 0, name: '' },
     player2P: { memberId: 0, name: '' },
   });
+
+  // WebSocket 메시지 관리
+  const { messages } = useWebSocket();
+
+  // WebSocket 메시지 수신 시 상태 업데이트
+  useEffect(() => {
+    if (messages.length > 0) {
+      const latestMessage = messages[messages.length - 1];
+      console.log('수신된 메시지:', latestMessage);
+
+      // 방 상태 업데이트
+      setRoomStatus(latestMessage.status);
+
+      // 플레이어 정보 업데이트
+      if (latestMessage.status === 'READY') {
+        setPlayers((prevPlayers) => ({
+          ...prevPlayers,
+          player2P: {
+            memberId: latestMessage.playerId,
+            name: latestMessage.playerName,
+          },
+        }));
+      }
+    }
+  }, [messages]);
   //===================================================
 
   return (
