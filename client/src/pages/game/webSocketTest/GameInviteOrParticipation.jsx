@@ -12,26 +12,19 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
     try {
       const response = await createRoom(member.id);
       setRoomId(response.roomId);
-      setRoomStatus(response.roomStatus); // READY 상태로 설정
+      setRoomStatus(response.roomStatus);
       setIsGameStart(true);
       setPlayers((prevPlayer) => ({ ...prevPlayer, player1P: response.player1P }));
 
-      if (!sendMessage) {
-        alert('WebSocket 연결되지 않음');
-        return;
-      }
-      console.log('방생성시 웹소켓에 전달되는 정보', response.roomId);
-      console.log('방생성시 웹소켓에 전달되는 정보', member.id);
-      console.log('방생성시 웹소켓에 전달되는 정보', member.name);
+      console.log('방생성시 웹소켓에 전달되는 정보', response.roomId, member.id, member.name);
 
-      // WebSocket 메시지 전송
-      sendMessage('ws://localhost:8080/app/room/create', {
+      // WebSocket 메시지 전송 대기
+      await sendMessage('/app/room/create', {
         roomId: response.roomId,
         playerId: member.id,
-        playerName: member.name,
       });
     } catch (error) {
-      alert('초대코드 생성 실패');
+      alert('초대코드 생성 실패 또는 WebSocket 전송 실패');
       console.error(error);
     }
   };
@@ -40,7 +33,6 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
     sendMessage('/app/room/join', {
       roomId: inviteCodeForParticipation,
       playerId: member.id,
-      playerName: member.name,
     });
 
     // 상태 업데이트

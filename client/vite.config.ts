@@ -2,6 +2,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import rollupNodePolyFill from 'rollup-plugin-polyfill-node';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -42,7 +45,25 @@ export default defineConfig({
     },
   },
 
-  define: {
-    global: {}, // 웹소켓때문에 추가됨: 정지안
+  // 웹소켓 설정 추가됨.
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis', // global 객체 정의
+      },
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true, // Buffer 지원 활성화
+        }),
+      ],
+    },
+  },
+
+  build: {
+    rollupOptions: {
+      plugins: [
+        rollupNodePolyFill(), // Node.js 폴리필 추가
+      ],
+    },
   },
 });

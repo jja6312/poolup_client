@@ -23,7 +23,7 @@ const GamePage = () => {
   });
 
   // WebSocket 메시지 관리
-  const { messages } = useWebSocket();
+  const { messages } = useWebSocket({ isGameStart });
 
   // WebSocket 메시지 수신 시 상태 업데이트
   useEffect(() => {
