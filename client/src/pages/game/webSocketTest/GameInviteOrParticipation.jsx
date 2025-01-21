@@ -2,41 +2,35 @@ import React, { useState } from 'react';
 import { createRoom } from './api/createRoom';
 import useWebSocket from './webSocket/useWebSocket';
 
-const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoomStatus, setPlayers }) => {
+const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setPlayers }) => {
   const [roomId, setRoomId] = useState('');
   const [inviteCodeForParticipation, setInviteCodeForParticipation] = useState('');
 
-  const { sendMessage } = useWebSocket();
+  const { roomStatus, sendMessage } = useWebSocket();
 
   const handleCreateRoom = async () => {
     try {
       const response = await createRoom(member.id);
       setRoomId(response.roomId);
-      setRoomStatus(response.roomStatus);
+
       setIsGameStart(true);
       setPlayers((prevPlayer) => ({ ...prevPlayer, player1P: response.player1P }));
 
-      console.log('방생성시 웹소켓에 전달되는 정보', response.roomId, member.id, member.name);
-
-      // WebSocket 메시지 전송 대기
-      await sendMessage('/app/room/create', {
-        roomId: response.roomId,
-        playerId: member.id,
-      });
+      console.log('handleCreateRoom() 호출', response.roomId, member.id, member.name);
     } catch (error) {
-      alert('초대코드 생성 실패 또는 WebSocket 전송 실패');
+      alert('방생성 실패');
       console.error(error);
     }
   };
 
   const handleJoinRoom = () => {
+    console.log('메시지 전송 시작...');
     sendMessage('/app/room/join', {
       roomId: inviteCodeForParticipation,
       playerId: member.id,
     });
+    console.log('메시지 전송 완료.');
 
-    // 상태 업데이트
-    setRoomStatus('START');
     setIsGameStart(true);
     setPlayers((prevPlayer) => ({
       ...prevPlayer,
@@ -47,7 +41,6 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
     }));
   };
 
-  // 초대코드 인풋값 변경감지지
   const handleInputChange = (e) => {
     setInviteCodeForParticipation(e.target.value);
   };
@@ -76,9 +69,7 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
           placeholder="초대코드로 입장하기"
         ></input>
         <button
-          className="bg-purple-200 w-20 h-16
-            transition-all duration-200 hover:opacity-70
-            "
+          className="bg-purple-200 w-20 h-16 transition-all duration-200 hover:opacity-70"
           onClick={handleJoinRoom}
         >
           입장

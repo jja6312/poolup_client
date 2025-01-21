@@ -6,7 +6,7 @@ const GameScreen = ({ roomStatus, players }) => {
   const [point2P, setPoint2P] = useState(0);
   return (
     <div className="relative flex justify-center bg-[#EDF0FF] w-[100vw] h-[100vh] gap-10 p-5">
-      {roomStatus === 'READY' && (
+      {roomStatus === 'WAITING' && (
         <div
           className="absolute w-full h-full bg-black opacity-30 text-white flex justify-center items-center
       -translate-y-5 text-5xl
@@ -34,7 +34,8 @@ const GameScreen = ({ roomStatus, players }) => {
         </div>
         {/* 우측 흰색 박스 2 */}
         <div className="flex flex-col bg-white w-full h-full p-5 rounded-xl">
-          <span className="text-2xl font-bold">2P(플레이어 이름)</span>
+          <span className="text-2xl font-bold">2P</span>
+          <span className="text-2xl font-bold text-blue-500">{players.player2P.name}</span>
           {/* 점수표(2P) */}
           <div className="w-full h-full flex justify-center items-center">
             <span className="text-red-500 text-6xl font-bold">{point2P}</span>
