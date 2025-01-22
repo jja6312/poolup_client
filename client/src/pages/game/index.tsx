@@ -15,14 +15,9 @@ const GamePage = () => {
   });
 
   //================ 인수인계 이후 내용 ================
-  const [players, setPlayers] = useState({
-    // 방생성시 1P가 정해진다. 초대링크를통해 접근한다면 2P가 정해진다.
-    player1P: { memberId: 0, name: '' },
-    player2P: { memberId: 0, name: '' },
-  });
 
   // WebSocket에서 roomStatus를 관리한다.
-  const { roomStatus } = useWebSocket({ isGameStart });
+  const { roomStatus, roomInfo, setRoomInfo } = useWebSocket();
 
   // WebSocket 메시지 수신 시 상태 업데이트
   //===================================================
@@ -42,11 +37,11 @@ const GamePage = () => {
             isGameStart={isGameStart}
             setIsGameStart={setIsGameStart}
             member={member}
-            setPlayers={setPlayers}
+            setRoomInfo={setRoomInfo}
           />
         ) : (
           // 3. 게임 시작이 되면 게임 화면 출력.
-          <GameScreen roomStatus={roomStatus} players={players} />
+          <GameScreen roomStatus={roomStatus} roomInfo={roomInfo} />
         )
       }
     </>

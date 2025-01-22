@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from './Card';
+import { getTemporaryProblems } from './api/getTemporaryProblems';
 
-const GameScreen = ({ roomStatus, players }) => {
+const GameScreen = ({ roomStatus, roomInfo }) => {
   const [point1P, setPoint1P] = useState(0);
   const [point2P, setPoint2P] = useState(0);
+  const [problems, setProblems] = useState([]);
+
+  useEffect(() => {
+    console.log('************roomStatus ', roomStatus);
+    if (roomStatus === 'READY') {
+      // 비동기 함수 정의 및 호출
+      const fetchProblems = async () => {
+        try {
+          const response = await getTemporaryProblems();
+          console.log('problems', response);
+          setProblems(response.problemCards); // 상태로 저장
+        } catch (error) {
+          console.error('문제 가져오기 실패:', error);
+        }
+      };
+
+      fetchProblems();
+    }
+  }, [roomStatus]);
   return (
     <div className="relative flex justify-center bg-[#EDF0FF] w-[100vw] h-[100vh] gap-10 p-5">
       {roomStatus === 'WAITING' && (
@@ -25,7 +45,7 @@ const GameScreen = ({ roomStatus, players }) => {
         {/* 우측 흰색 박스 1 */}
         <div className="flex flex-col bg-white w-full h-full p-5 rounded-xl">
           <span className="text-2xl font-bold">1P</span>
-          <span className="text-2xl font-bold text-blue-500">{players.player1P.name}</span>
+          <span className="text-2xl font-bold text-blue-500">{roomInfo.player1P.name}</span>
 
           {/* 점수표(1P) */}
           <div className="w-full h-full flex justify-center items-center">
@@ -35,7 +55,7 @@ const GameScreen = ({ roomStatus, players }) => {
         {/* 우측 흰색 박스 2 */}
         <div className="flex flex-col bg-white w-full h-full p-5 rounded-xl">
           <span className="text-2xl font-bold">2P</span>
-          <span className="text-2xl font-bold text-blue-500">{players.player2P.name}</span>
+          <span className="text-2xl font-bold text-blue-500">{roomInfo.player2P.name}</span>
           {/* 점수표(2P) */}
           <div className="w-full h-full flex justify-center items-center">
             <span className="text-red-500 text-6xl font-bold">{point2P}</span>

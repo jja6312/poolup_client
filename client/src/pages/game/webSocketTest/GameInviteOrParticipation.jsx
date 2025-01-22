@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createRoom } from './api/createRoom';
 import useWebSocket from './webSocket/useWebSocket';
 
-const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setPlayers }) => {
+const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoomInfo }) => {
   const [roomId, setRoomId] = useState('');
   const [inviteCodeForParticipation, setInviteCodeForParticipation] = useState('');
 
@@ -14,7 +14,7 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setPla
       setRoomId(response.roomId);
 
       setIsGameStart(true);
-      setPlayers((prevPlayer) => ({ ...prevPlayer, player1P: response.player1P }));
+      setRoomInfo((prevRoomInfo) => ({ ...prevRoomInfo, player1P: response.player1P }));
 
       console.log('handleCreateRoom() 호출', response.roomId, member.id, member.name);
     } catch (error) {
@@ -32,8 +32,8 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setPla
     console.log('메시지 전송 완료.');
 
     setIsGameStart(true);
-    setPlayers((prevPlayer) => ({
-      ...prevPlayer,
+    setRoomInfo((prevRoomInfo) => ({
+      ...prevRoomInfo,
       player2P: {
         memberId: member.id,
         name: member.name,
