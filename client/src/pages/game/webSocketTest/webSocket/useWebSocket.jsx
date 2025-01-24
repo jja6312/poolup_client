@@ -7,8 +7,9 @@ const useWebSocket = () => {
   const [roomStatus, setRoomStatus] = useState('WAITING'); // 방 상태를 저장하는 상태
   const [roomInfo, setRoomInfo] = useState({
     roomId: '',
-    player1P: { memberId: 0, name: '' },
-    player2P: { memberId: 0, name: '' },
+    player1P: { memberId: 0, name: '', score: 0 },
+    player2P: { memberId: 0, name: '', score: 0 },
+    disabledCards: [],
   });
 
   useEffect(() => {
@@ -45,7 +46,29 @@ const useWebSocket = () => {
             memberId: updatedStatus.body.player2P.memberId,
             name: updatedStatus.body.player2P.name,
           },
+          disabledCards: [],
         });
+      });
+
+      // 정답 확인 구독
+      client.current.subscribe('/topic/answer-correct', (message) => {
+        const { problemNumber, score1P, score2P } = JSON.parse(message.body);
+        console.log('!!!!!!!STOMP토픽 메시지 수신', problemNumber, score1P, score2P);
+
+        setRoomInfo((prevRoomInfo) => ({
+          ...prevRoomInfo,
+          disabledCards: [...prevRoomInfo.disabledCards, problemNumber], // 정답 처리된 카드 추가
+
+          player1P: {
+            ...prevRoomInfo.player1P,
+            score: score1P, // 1P 점수 갱신
+          },
+          player2P: {
+            ...prevRoomInfo.player2P,
+            score: score2P, // 2P 점수 갱신
+          },
+          disabledCards: [...prevRoomInfo.disabledCards, problemNumber],
+        }));
       });
     };
 
@@ -72,7 +95,14 @@ const useWebSocket = () => {
     client.current.publish({ destination, body: JSON.stringify(payload) });
   };
 
-  return { roomStatus, sendMessage, roomInfo, setRoomInfo };
+  const subscribe = (destination, callback) => {
+    if (client.current && client.current.connected) {
+      return client.current.subscribe(destination, callback);
+    }
+    return { unsubscribe: () => {} }; // 기본 unsubscribe 함수 반환
+  };
+
+  return { roomStatus, sendMessage, roomInfo, setRoomInfo, subscribe };
 };
 
 export default useWebSocket;

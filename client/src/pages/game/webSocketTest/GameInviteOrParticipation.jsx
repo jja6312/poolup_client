@@ -2,21 +2,19 @@ import React, { useState } from 'react';
 import { createRoom } from './api/createRoom';
 import useWebSocket from './webSocket/useWebSocket';
 
-const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoomInfo }) => {
-  const [roomId, setRoomId] = useState('');
+const GameInviteOrParticipation = ({ setIsGameStart, member, setRoomInfo }) => {
   const [inviteCodeForParticipation, setInviteCodeForParticipation] = useState('');
 
-  const { roomStatus, sendMessage } = useWebSocket();
+  const { sendMessage } = useWebSocket();
 
   const handleCreateRoom = async () => {
     try {
-      const response = await createRoom(member.id);
-      setRoomId(response.roomId);
+      const response = await createRoom(member.memberId);
 
       setIsGameStart(true);
-      setRoomInfo((prevRoomInfo) => ({ ...prevRoomInfo, player1P: response.player1P }));
+      setRoomInfo((prevRoomInfo) => ({ ...prevRoomInfo, roomId: response.roomId, player1P: response.player1P }));
 
-      console.log('handleCreateRoom() 호출', response.roomId, member.id, member.name);
+      console.log('handleCreateRoom() 호출', response.roomId, member.memberId, member.name);
     } catch (error) {
       alert('방생성 실패');
       console.error(error);
@@ -27,7 +25,7 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
     console.log('메시지 전송 시작...');
     sendMessage('/app/room/join', {
       roomId: inviteCodeForParticipation,
-      playerId: member.id,
+      playerId: member.memberId,
     });
     console.log('메시지 전송 완료.');
 
@@ -35,7 +33,7 @@ const GameInviteOrParticipation = ({ isGameStart, setIsGameStart, member, setRoo
     setRoomInfo((prevRoomInfo) => ({
       ...prevRoomInfo,
       player2P: {
-        memberId: member.id,
+        memberId: member.memberId,
         name: member.name,
       },
     }));

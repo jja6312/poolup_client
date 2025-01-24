@@ -9,18 +9,15 @@ const GamePage = () => {
   const [isGameStart, setIsGameStart] = useState(false); // 게임 시작
   const [member, setMember] = useState({
     // 로그인을 통해 set되고, 방생성시 사용되는 member
-    id: '',
+    memberId: '',
     name: '',
     email: '',
   });
-
-  //================ 인수인계 이후 내용 ================
 
   // WebSocket에서 roomStatus를 관리한다.
   const { roomStatus, roomInfo, setRoomInfo } = useWebSocket();
 
   // WebSocket 메시지 수신 시 상태 업데이트
-  //===================================================
   useEffect(() => {
     console.log('roomStatus', roomStatus);
   }, [roomStatus]);
@@ -41,7 +38,7 @@ const GamePage = () => {
           />
         ) : (
           // 3. 게임 시작이 되면 게임 화면 출력.
-          <GameScreen roomStatus={roomStatus} roomInfo={roomInfo} />
+          <GameScreen roomStatus={roomStatus} roomInfo={roomInfo} member={member} />
         )
       }
     </>
