@@ -67,7 +67,6 @@ const useWebSocket = () => {
             ...prevRoomInfo.player2P,
             score: score2P, // 2P 점수 갱신
           },
-          disabledCards: [...prevRoomInfo.disabledCards, problemNumber],
         }));
       });
     };
